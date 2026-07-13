@@ -17,13 +17,18 @@ cask "macndcheese" do
   app "MacNdCheese Launcher.app"
 
   # The .app is only ad-hoc signed (no paid Apple Developer ID, no notarization),
-  # so Gatekeeper quarantines it after download just like a manual .dmg install.
+  # so without this Gatekeeper would quarantine it just like a manual .dmg
+  # install and show "can't be verified" on first launch.
+  postflight do
+    system_command "/usr/bin/xattr",
+                    args: ["-dr", "com.apple.quarantine", "#{appdir}/MacNdCheese Launcher.app"]
+  end
+
   caveats <<~EOS
-    MacNdCheese is ad-hoc signed, not notarized by Apple. The first time you
-    open it macOS will say it "can't be verified" or is damaged. To run it:
-      1. System Settings → Privacy & Security
-      2. Scroll to the blocked-app message for "MacNdCheese Launcher"
-      3. Click "Open Anyway", then confirm with your password
+    MacNdCheese is ad-hoc signed, not notarized by Apple. This cask clears the
+    quarantine flag on install so it should open normally. If macOS still says
+    it "can't be verified": System Settings → Privacy & Security → scroll to
+    the blocked-app message → "Open Anyway".
   EOS
 
   zap trash: [
