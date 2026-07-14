@@ -1,6 +1,6 @@
 cask "macndcheese" do
-  version "10.5.2"
-  sha256 "66c81a225c61b44d464d95a9f18286394b9208f8924d7e039789b6a5ac162d75"
+  version "10.5.0"
+  sha256 "d022764c20d684941c863c455eaa2729249aa496b548424962391306aa77bcbb"
 
   url "https://github.com/mont127/MacNdCheese/releases/download/v#{version}/MacNCheese.dmg"
   name "MacNdCheese"
@@ -16,16 +16,21 @@ cask "macndcheese" do
 
   app "MacNdCheese Launcher.app"
 
+  # ad-hoc signed only (no Developer ID, not notarized) — clear the quarantine
+  # flag Gatekeeper adds on download so it doesn't need "Open Anyway" by hand.
+  postflight do
+    system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{appdir}/MacNdCheese Launcher.app"]
+  end
+
   zap trash: [
     "~/Library/Application Support/MacNdCheese",
     "~/Library/Preferences/com.marcel.macncheese.plist",
   ]
 
   caveats <<~EOS
-    MacNdCheese is ad-hoc signed, not notarized by Apple. The first time you
-    open it macOS will say it "can't be verified" or is damaged. To run it:
-      1. System Settings → Privacy & Security
-      2. Scroll to the blocked-app message for "MacNdCheese Launcher"
-      3. Click "Open Anyway", then confirm with your password
+    MacNdCheese is ad-hoc signed, not notarized by Apple. This cask clears the
+    quarantine flag on install so it should open normally. If macOS still says
+    it "can't be verified": System Settings → Privacy & Security → scroll to
+    the blocked-app message → "Open Anyway".
   EOS
 end
